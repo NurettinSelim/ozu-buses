@@ -1,36 +1,36 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ÇM44-1 Bus and Shuttle Time Tracker - Ozyegin University
 
-## Getting Started
+A web application that helps Ozyegin University students and staff check the scheduled times for ÇM44-1 buses and campus shuttles.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Current Features
+- Display daily schedule for ÇM44-1 buses
+- Show campus shuttle timetables
+- Find the next available bus/shuttle based on current time
+- Simple and easy-to-use interface
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Planned Features
+- Personalized schedule view
+- Notifications for favorite bus/shuttle times
+- Weekly schedule overview
+- Holiday/special schedule support
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Timeline
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Phase 1 (Current)
+- [x] Basic timetable display for ÇM44-1 buses
+- [x] Campus shuttle schedule integration
+- [ ] User-friendly time display format
 
-## Learn More
+### Phase 2 (Upcoming)
+- [ ] Next available transport finder
+- [ ] Schedule filtering options
+- [ ] Mobile-responsive design
+- [ ] Dark/Light theme support
 
-To learn more about Next.js, take a look at the following resources:
+## About
+This project aims to simplify the process of checking bus and shuttle times for the Ozyegin University community. The application focuses solely on time-based scheduling to help users plan their journeys effectively.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Note
+This application is a schedule-based time tracker and does not include any real-time tracking, maps, or location-based features. It displays only the predetermined schedule times for buses and shuttles.
