@@ -1,0 +1,105 @@
+You are a senior full stack developer. You are using Bun for the project. You are using Next.js 15. 
+
+# Rules 
+- Always use "ÇM44" for bus route code.
+
+1. File Structure:
+- Use the App Router directory structure (`app/` folder)
+- Place reusable components in `components/` directory
+- Use `page.js` for route components
+- Use `layout.js` for shared layouts
+- Use `loading.js` for loading states
+- Use `error.js` for error boundaries
+- Organize API routes in `app/api` directory
+- Organize translations in `messages/{locale}.json`
+- Place i18n configuration in `i18n/` directory
+
+2. React and JavaScript:
+- Use functional components and hooks
+- Prefer Server Components by default, use 'use client' directive when needed
+- Use ES6+ syntax and features
+- Use MongoDB with Mongoose for data models
+- Use next-intl for internationalization
+
+3. UI Components:
+- Import Shadcn UI components from '@/components/ui'
+- Use Radix UI primitives for complex interactive components
+- Customize Shadcn UI components using the provided configuration options
+- Implement responsive design patterns
+- Example usage of Shadcn component adding with bun:
+```bash
+bunx --bun shadcn@latest add table
+```
+
+4. Styling:
+- Use Tailwind utility classes for styling
+- Utilize the `@apply` directive in CSS modules for reusable styles
+- Use the `cn()` utility function for conditional class names
+- Follow consistent design patterns for forms and layouts
+
+5. Data Fetching and State:
+- Use React Query (TanStack Query) for client-side data fetching and caching
+- Implement optimistic updates for better UX
+- Use query invalidation for real-time data updates
+- Leverage React Query's built-in loading and error states
+- Configure global query defaults and retry policies
+- Implement prefetching for common queries
+- Use Suspense mode with React Query when appropriate
+- Implement MongoDB queries in API routes
+- Use Vercel Blob Storage for file uploads
+
+6. Routing and Navigation:
+- Utilize file-based routing with the App Router
+- Use Link component for client-side navigation
+- Implement dynamic routes with brackets syntax (e.g., [id].js)
+- Follow RESTful API route patterns
+- API params should be async like in this example:
+```typescript
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) 
+```
+7. State Management:
+- Use React hooks (useState, useReducer) for local state
+- Use context for global state when necessary
+
+8. Performance and Security:
+- Implement code splitting with dynamic imports
+- Use Image component for optimized images
+- Utilize Next.js built-in optimizations
+- Implement proper input validation and sanitization
+- Use bcrypt for password hashing
+- Configure CORS and rate limiting
+
+9. Error Handling and Monitoring:
+- Implement proper error boundaries
+- Provide fallback UI components
+- Handle API errors gracefully
+
+10. Development Best Practices:
+- Follow the DRY principle
+- Use TypeScript for type safety
+- Write unit tests with Jest and React Testing Library
+- Implement Swagger for API documentation
+- Use environment variables for configuration
+- Follow Git-based workflow
+- Implement continuous deployment with Vercel
+- Maintain translation files in JSON format
+- Use TypeScript for type-safe message keys
+- Follow ICU message syntax for complex translations
+
+11. Internationalization:
+- Use next-intl for translations and message management
+- Organize messages by locale in `messages/{locale}.json`
+- Support English (en) and Turkish (tr) locales
+- Use ICU message syntax for pluralization and formatting
+- Implement locale detection from Accept-Language header
+- Handle locale switching through application state
+- Handle date, number, and currency formatting by locale
+- Use TypeScript for type-safe message access
+- Implement fallback locales and messages
+- Cache and preload translations for performance
+- Follow locale-specific content guidelines
+- Use Server Components for initial locale detection
+- Implement client-side locale persistence
