@@ -8,20 +8,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useSchedules } from "@/lib/hooks/use-schedules";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Clock, Calendar, Navigation } from "lucide-react";
+import { Clock, RefreshCw } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ScheduleDirection } from "@/types/schedule";
 import { timeToMinutes, getCurrentTimeInMinutes } from "@/lib/utils/time";
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 
 const directionLabels: Record<ScheduleDirection, string> = {
   'campus-to-metro': 'Campus → Metro',
@@ -34,41 +31,38 @@ function isWeekend(): boolean {
 }
 
 export function ScheduleTable() {
-  const { data: schedules, isLoading, error } = useSchedules();
+  const { data: schedules, isLoading, error, refetch } = useSchedules();
   const [currentDayType, setCurrentDayType] = useState<boolean>(isWeekend());
+  const [showWeekend, setShowWeekend] = useState<boolean>(isWeekend());
   const [currentTime, setCurrentTime] = useState(getCurrentTimeInMinutes());
-  const [selectedDirection, setSelectedDirection] = useState<string>("all");
 
-  // Update current time every minute
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(getCurrentTimeInMinutes());
       setCurrentDayType(isWeekend());
-    }, 60000); // Update every minute
+    }, 60000);
 
     return () => clearInterval(timer);
   }, []);
 
   if (isLoading) {
     return (
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-muted/50">
-              <TableHead className="w-[100px]">Time</TableHead>
-              <TableHead className="w-[120px]">Direction</TableHead>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Time</TableHead>
+            <TableHead>Service</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {[...Array(5)].map((_, i) => (
+            <TableRow key={i}>
+              <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+              <TableCell><Skeleton className="h-4 w-20" /></TableCell>
             </TableRow>
-          </TableHeader>
-          <TableBody>
-            {[...Array(5)].map((_, i) => (
-              <TableRow key={i}>
-                <TableCell><Skeleton className="h-4 w-16" /></TableCell>
-                <TableCell><Skeleton className="h-4 w-20" /></TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+          ))}
+        </TableBody>
+      </Table>
     );
   }
 
@@ -82,99 +76,121 @@ export function ScheduleTable() {
     );
   }
 
-  // Filter schedules based on selected direction
-  const filteredSchedules = schedules?.filter(schedule => 
-    selectedDirection === "all" || schedule.direction === selectedDirection
-  ) || [];
-
-  // Group schedules by day type
-  const groupedSchedules = [true, false].reduce((acc, isWeekend) => {
-    const daySchedules = filteredSchedules?.filter(s => s.isWeekend === isWeekend) || [];
-    acc[isWeekend.toString()] = daySchedules;
-    return acc;
-  }, {} as Record<string, typeof schedules>);
+  const filteredSchedules = schedules?.filter(s => s.isWeekend === showWeekend) || [];
+  
+  const groupedSchedules = {
+    'campus-to-metro': {
+      shuttle: filteredSchedules.filter(s => s.direction === 'campus-to-metro' && s.type === 'shuttle'),
+      iett: filteredSchedules.filter(s => s.direction === 'campus-to-metro' && s.type === 'iett')
+    },
+    'metro-to-campus': {
+      shuttle: filteredSchedules.filter(s => s.direction === 'metro-to-campus' && s.type === 'shuttle'),
+      iett: filteredSchedules.filter(s => s.direction === 'metro-to-campus' && s.type === 'iett')
+    }
+  };
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-end">
-        <Select value={selectedDirection} onValueChange={setSelectedDirection}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select direction" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Directions</SelectItem>
-            <SelectItem value="campus-to-metro">Campus to Metro</SelectItem>
-            <SelectItem value="metro-to-campus">Metro to Campus</SelectItem>
-          </SelectContent>
-        </Select>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <h2 className="text-2xl font-semibold text-primary">Bus Schedule</h2>
+          <div className="flex items-center gap-2 bg-white/80 rounded-lg px-3 py-1.5 shadow-sm">
+            <span className="text-sm text-muted-foreground">Weekday</span>
+            <Switch 
+              checked={showWeekend}
+              onCheckedChange={setShowWeekend}
+            />
+            <span className="text-sm text-muted-foreground">Weekend</span>
+          </div>
+          {currentDayType === showWeekend && (
+            <Badge variant="outline" className="bg-secondary text-secondary-foreground">Today</Badge>
+          )}
+        </div>
+        <Button
+          variant="outline"
+          size="icon"
+          className="h-8 w-8 bg-white/80 hover:bg-white transition-colors shadow-sm"
+          onClick={() => refetch()}
+        >
+          <RefreshCw className="h-4 w-4 text-primary" />
+        </Button>
       </div>
 
-      {[true, false].map(isWeekend => {
-        const daySchedules = groupedSchedules[isWeekend.toString()];
-        if (!daySchedules?.length) return null;
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {(['campus-to-metro', 'metro-to-campus'] as const).map((direction) => {
+          const directionSchedules = groupedSchedules[direction];
+          const allSchedules = [...directionSchedules.shuttle, ...directionSchedules.iett].sort((a, b) => 
+            timeToMinutes(a.time) - timeToMinutes(b.time)
+          );
+          const nextDepartureIndex = currentDayType === showWeekend ? 
+            allSchedules.findIndex(schedule => timeToMinutes(schedule.time) > currentTime) : -1;
 
-        const isCurrentDayType = isWeekend === currentDayType;
+          return (
+            <div key={direction} className="bg-white/90 rounded-lg p-4 shadow-sm">
+              <div className="mb-4">
+                <h3 className="text-lg font-medium text-primary">{directionLabels[direction]}</h3>
+              </div>
+              <Table>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent border-border">
+                    <TableHead>
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-muted-foreground">Time</span>
+                      </div>
+                    </TableHead>
+                    <TableHead className="text-muted-foreground">Service</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {allSchedules.map((schedule, index) => {
+                    const isNextDeparture = index === nextDepartureIndex;
+                    const minutesUntil = isNextDeparture ? 
+                      timeToMinutes(schedule.time) - currentTime : null;
 
-        // Find the first next departure for the current day
-        const nextDepartureIndex = isCurrentDayType ? 
-          daySchedules.findIndex(schedule => timeToMinutes(schedule.time) > currentTime) : -1;
-
-        return (
-          <div key={isWeekend.toString()} className="rounded-md border">
-            <div className={`px-4 py-2 border-b ${isCurrentDayType ? 'bg-primary/10' : 'bg-muted/50'}`}>
-              <h3 className="font-medium flex items-center gap-2">
-                <Calendar className={`h-4 w-4 ${isCurrentDayType ? 'text-primary' : 'text-muted-foreground'}`} />
-                <span>{isWeekend ? 'Weekend' : 'Weekday'}</span>
-                {isCurrentDayType && <span className="text-xs bg-primary text-primary-foreground rounded-full px-2">Today</span>}
-              </h3>
+                    return (
+                      <TableRow 
+                        key={`${schedule.time}-${index}`}
+                        className={cn(
+                          "hover:bg-secondary/50 border-border",
+                          isNextDeparture && 'bg-secondary'
+                        )}
+                      >
+                        <TableCell className={cn(
+                          "font-medium text-foreground/80",
+                          isNextDeparture && 'text-foreground'
+                        )}>
+                          <div className="flex items-center gap-2">
+                            {schedule.time}
+                            {isNextDeparture && (
+                              <Badge className="bg-primary/10 text-primary border-primary/20">
+                                Next ({minutesUntil}m)
+                              </Badge>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge 
+                            variant="outline" 
+                            className={cn(
+                              "bg-white",
+                              schedule.type === 'shuttle' 
+                                ? 'text-primary border-primary/30' 
+                                : 'text-muted-foreground border-muted'
+                            )}
+                          >
+                            {schedule.type === 'shuttle' ? 'Shuttle' : 'IETT'}
+                          </Badge>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
             </div>
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-muted/50">
-                  <TableHead className="w-[100px]">
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-muted-foreground" />
-                      <span>Time</span>
-                    </div>
-                  </TableHead>
-                  <TableHead className="w-[120px]">
-                    <div className="flex items-center gap-2">
-                      <Navigation className="h-4 w-4 text-muted-foreground" />
-                      <span>Direction</span>
-                    </div>
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {daySchedules.map((schedule, index) => {
-                  const isNextDeparture = index === nextDepartureIndex;
-
-                  return (
-                    <TableRow 
-                      key={`${schedule.type}-${schedule.direction}-${schedule.time}-${index}`}
-                      className={`group ${isNextDeparture ? 'bg-primary/5' : 'hover:bg-muted/50'}`}
-                    >
-                      <TableCell className={`font-medium ${isNextDeparture ? 'text-primary' : 'text-foreground'}`}>
-                        {schedule.time}
-                        {isNextDeparture && <span className="ml-2 text-xs bg-primary text-primary-foreground rounded-full px-2">Next</span>}
-                      </TableCell>
-                      <TableCell>
-                        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                          schedule.direction === 'campus-to-metro' 
-                            ? 'bg-primary/10 text-primary' 
-                            : 'bg-secondary text-secondary-foreground'
-                        }`}>
-                            {directionLabels[schedule.direction as ScheduleDirection]}
-                        </span>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 } 
