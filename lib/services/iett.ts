@@ -42,7 +42,9 @@ export async function getSchedules(code: string, marker?: string): Promise<Sched
       'GetPlanlananSeferSaati',
       { HatKodu: code }
     );
-    return response.filter(schedule => marker ? schedule.GUZERGAH_ISARETI === marker : true).map(mapIettSchedule);
+    return response.filter(schedule => marker ? schedule.GUZERGAH_ISARETI === marker : true)
+      .filter(schedule => schedule.SGUNTIPI === 'I' || schedule.SGUNTIPI === 'P')
+      .map(mapIettSchedule);
   } catch (error) {
     if (error instanceof IettApiError) {
       throw new ServiceUnavailableError(error.message);

@@ -1,30 +1,13 @@
 "use client";
 
 import { NextBusIndicator } from "@/components/schedule/next-bus-indicator";
-import { ScheduleFilter } from "@/components/schedule/schedule-filter";
 import { ScheduleTable } from "@/components/schedule/schedule-table";
-import { useState, useMemo } from "react";
 import { Navbar } from "@/components/layout/navbar";
 import { Bus } from "lucide-react";
 import { useSchedules } from "@/lib/hooks/use-schedules";
+
 export default function HomePage() {
   const { data: schedules = [] } = useSchedules();
-  const [dayType, setDayType] = useState("weekday");
-  const [direction, setDirection] = useState("all");
-
-  const filteredSchedules = useMemo(() => {
-    return schedules.filter((schedule) => {
-      if (direction !== "all" && schedule.direction !== direction) {
-        return false;
-      }
-      return true;
-    });
-  }, [schedules, direction]);
-
-  const handleFilterChange = (newDayType: string, newDirection: string) => {
-    setDayType(newDayType);
-    setDirection(newDirection);
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -43,20 +26,16 @@ export default function HomePage() {
 
           {/* Next Bus Indicators */}
           <div className="w-full">
-            <NextBusIndicator schedules={filteredSchedules} />
+            <NextBusIndicator schedules={schedules} />
           </div>
 
           {/* Schedule Section */}
           <section className="bg-card rounded-lg border shadow-sm overflow-hidden">
-            <div className="px-4 py-3 border-b bg-muted/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <div className="px-4 py-3 border-b bg-muted/50">
               <h2 className="text-base font-semibold text-card-foreground">Today&apos;s Schedule</h2>
-              <ScheduleFilter 
-                schedules={schedules} 
-                onFilterChange={handleFilterChange}
-              />
             </div>
             <div className="p-4">
-              <ScheduleTable schedules={filteredSchedules} dayType={dayType} />
+              <ScheduleTable />
             </div>
           </section>
         </div>

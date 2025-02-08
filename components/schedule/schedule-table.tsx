@@ -8,14 +8,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useSchedules } from "@/lib/hooks/use-schedules";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Clock, Calendar, Navigation } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Schedule, ScheduleDirection } from "@/types/schedule";
+import { ScheduleDirection } from "@/types/schedule";
 import { timeToMinutes, getCurrentTimeInMinutes } from "@/lib/time";
-
 
 const directionLabels: Record<ScheduleDirection, string> = {
   'campus-to-metro': 'Campus → Metro',
@@ -27,47 +33,11 @@ function isWeekend(): boolean {
   return day === 0 || day === 6;
 }
 
-
-interface ScheduleTableProps {
-  schedules: Schedule[];
-  dayType: string;
-}
-
-export function ScheduleTable({ schedules, dayType }: ScheduleTableProps) {
-  const times = isWeekend() 
-    ? schedules.flatMap(s => s.isWeekend).sort()
-    : schedules.flatMap(s => !s.isWeekend).sort();
-
-  return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Time</TableHead>
-          <TableHead>Direction</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {times.map((time, index) => (
-          <TableRow key={`${time}-${index}`}>
-            <TableCell>{time}</TableCell>
-            <TableCell>
-              {schedules.find(s => 
-                (dayType === "weekday" ? s.isWeekend : !s.isWeekend)
-              )?.direction === "campus-to-metro" 
-                ? "Campus → Metro" 
-                : "Metro → Campus"}
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  );
-}
-
-export function ScheduleTableComponent() {
+export function ScheduleTable() {
   const { data: schedules, isLoading, error } = useSchedules();
   const [currentDayType, setCurrentDayType] = useState<boolean>(isWeekend());
   const [currentTime, setCurrentTime] = useState(getCurrentTimeInMinutes());
+  const [selectedDirection, setSelectedDirection] = useState<string>("all");
 
   // Update current time every minute
   useEffect(() => {
@@ -112,15 +82,33 @@ export function ScheduleTableComponent() {
     );
   }
 
+  // Filter schedules based on selected direction
+  const filteredSchedules = schedules?.filter(schedule => 
+    selectedDirection === "all" || schedule.direction === selectedDirection
+  ) || [];
+
   // Group schedules by day type
   const groupedSchedules = [true, false].reduce((acc, isWeekend) => {
-    const daySchedules = schedules?.filter(s => s.isWeekend === isWeekend) || [];
+    const daySchedules = filteredSchedules?.filter(s => s.isWeekend === isWeekend) || [];
     acc[isWeekend.toString()] = daySchedules;
     return acc;
   }, {} as Record<string, typeof schedules>);
 
   return (
     <div className="space-y-6">
+      <div className="flex justify-end">
+        <Select value={selectedDirection} onValueChange={setSelectedDirection}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Select direction" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Directions</SelectItem>
+            <SelectItem value="campus-to-metro">Campus to Metro</SelectItem>
+            <SelectItem value="metro-to-campus">Metro to Campus</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
       {[true, false].map(isWeekend => {
         const daySchedules = groupedSchedules[isWeekend.toString()];
         if (!daySchedules?.length) return null;
