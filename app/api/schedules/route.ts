@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getSchedules } from '@/lib/services/iett';
 import { getShuttleSchedules } from '@/lib/services/shuttle';
-import { sortByTime } from '@/lib/time';
+import { sortByTime } from '@/lib/utils/time';
+
 export async function GET() {
   try {
     const schedules = await getSchedules("ÇM44", "(-1) ");

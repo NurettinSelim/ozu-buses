@@ -21,7 +21,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Clock, Calendar, Navigation } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ScheduleDirection } from "@/types/schedule";
-import { timeToMinutes, getCurrentTimeInMinutes } from "@/lib/time";
+import { timeToMinutes, getCurrentTimeInMinutes } from "@/lib/utils/time";
 
 const directionLabels: Record<ScheduleDirection, string> = {
   'campus-to-metro': 'Campus → Metro',

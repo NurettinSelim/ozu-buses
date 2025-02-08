@@ -1,37 +1,36 @@
-import { useQuery } from '@tanstack/react-query';
-import type { Schedule } from '@/types/schedule';
+import { useQuery } from "@tanstack/react-query";
+import { Schedule } from "@/types/schedule";
 
-interface ScheduleFilters {
+interface UseSchedulesOptions {
   direction?: string;
-  dayType?: string;
+  isWeekend?: boolean;
 }
 
-async function fetchSchedules(filters: ScheduleFilters = {}): Promise<Schedule[]> {
-  const searchParams = new URLSearchParams();
+async function fetchSchedules(options: UseSchedulesOptions = {}): Promise<Schedule[]> {
+  const { direction, isWeekend } = options;
+  const params = new URLSearchParams();
   
-  if (filters.direction) {
-    searchParams.set('direction', filters.direction);
+  if (direction) {
+    params.set("direction", direction);
   }
-  if (filters.dayType) {
-    searchParams.set('dayType', filters.dayType);
+  if (typeof isWeekend === "boolean") {
+    params.set("isWeekend", String(isWeekend));
   }
 
-  const queryString = searchParams.toString();
-  const url = `/api/schedules${queryString ? `?${queryString}` : ''}`;
+  const queryString = params.toString();
+  const url = `/api/schedules${queryString ? `?${queryString}` : ""}`;
   
   const response = await fetch(url);
   if (!response.ok) {
-    throw new Error('Failed to fetch schedules');
+    throw new Error("Failed to fetch schedules");
   }
   
   return response.json();
 }
 
-export function useSchedules(filters: ScheduleFilters = {}) {
-  return useQuery({
-    queryKey: ['schedules', filters],
-    queryFn: () => fetchSchedules(filters),
-    staleTime: 1000 * 60 * 5, // Consider data fresh for 5 minutes
-    refetchOnWindowFocus: false,
+export function useSchedules(options: UseSchedulesOptions = {}) {
+  return useQuery<Schedule[]>({
+    queryKey: ["schedules", options],
+    queryFn: () => fetchSchedules(options),
   });
 } 
