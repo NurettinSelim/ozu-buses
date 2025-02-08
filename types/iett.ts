@@ -8,8 +8,7 @@ export interface IettScheduleResponse {
   GUZERGAH_ISARETI?: string;
 }
 
-
-export interface Schedule {
+export interface IettSchedule {
   route_code: string;
   route_name: string;
   direction: string;

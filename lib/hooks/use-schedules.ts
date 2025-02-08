@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import type { Schedule } from '@/types/iett';
+import type { Schedule } from '@/types/schedule';
 
 interface ScheduleFilters {
   direction?: string;
@@ -17,7 +17,7 @@ async function fetchSchedules(filters: ScheduleFilters = {}): Promise<Schedule[]
   }
 
   const queryString = searchParams.toString();
-  const url = `/api/schedules/cm44${queryString ? `?${queryString}` : ''}`;
+  const url = `/api/schedules${queryString ? `?${queryString}` : ''}`;
   
   const response = await fetch(url);
   if (!response.ok) {

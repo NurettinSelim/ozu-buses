@@ -56,7 +56,7 @@ export function Navbar() {
                         >
                           <div className="text-sm font-medium leading-none">University Website</div>
                           <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                            Visit Özyeğin University's official website
+                            Visit Özyeğin University&apos;s official website
                           </p>
                         </a>
                       </NavigationMenuLink>
@@ -123,6 +123,16 @@ export function Navbar() {
               </div>
             </SheetContent>
           </Sheet>
+        </div>
+
+        <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
+          <div className="w-full flex-1 md:w-auto md:flex-none">
+            <Button variant="ghost" asChild>
+              <Link href="https://github.com/selimb/ozu-buses">
+                Source Code
+              </Link>
+            </Button>
+          </div>
         </div>
       </div>
     </header>

@@ -1,10 +1,31 @@
-import { ScheduleTable } from "@/components/schedule/schedule-table";
+"use client";
+
 import { NextBusIndicator } from "@/components/schedule/next-bus-indicator";
 import { ScheduleFilter } from "@/components/schedule/schedule-filter";
+import { ScheduleTable } from "@/components/schedule/schedule-table";
+import { useState, useMemo } from "react";
 import { Navbar } from "@/components/layout/navbar";
 import { Bus } from "lucide-react";
-
+import { useSchedules } from "@/lib/hooks/use-schedules";
 export default function HomePage() {
+  const { data: schedules = [] } = useSchedules();
+  const [dayType, setDayType] = useState("weekday");
+  const [direction, setDirection] = useState("all");
+
+  const filteredSchedules = useMemo(() => {
+    return schedules.filter((schedule) => {
+      if (direction !== "all" && schedule.direction !== direction) {
+        return false;
+      }
+      return true;
+    });
+  }, [schedules, direction]);
+
+  const handleFilterChange = (newDayType: string, newDirection: string) => {
+    setDayType(newDayType);
+    setDirection(newDirection);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -16,23 +37,26 @@ export default function HomePage() {
           <div>
             <h1 className="text-2xl font-bold text-foreground">ÇM44 Bus Schedule</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Real-time schedules for Özyeğin University students
+              Real-time schedules for Özyeğin University&apos;s students
             </p>
           </div>
 
           {/* Next Bus Indicators */}
           <div className="w-full">
-            <NextBusIndicator />
+            <NextBusIndicator schedules={filteredSchedules} />
           </div>
 
           {/* Schedule Section */}
           <section className="bg-card rounded-lg border shadow-sm overflow-hidden">
             <div className="px-4 py-3 border-b bg-muted/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-              <h2 className="text-base font-semibold text-card-foreground">Today's Schedule</h2>
-              <ScheduleFilter />
+              <h2 className="text-base font-semibold text-card-foreground">Today&apos;s Schedule</h2>
+              <ScheduleFilter 
+                schedules={schedules} 
+                onFilterChange={handleFilterChange}
+              />
             </div>
             <div className="p-4">
-              <ScheduleTable />
+              <ScheduleTable schedules={filteredSchedules} dayType={dayType} />
             </div>
           </section>
         </div>
