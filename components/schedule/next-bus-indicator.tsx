@@ -7,26 +7,11 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Clock, ArrowRight, MapPin } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { DIRECTION_LABELS, DIRECTIONS, LOCATION_INFO } from "@/config/constants";
 
 interface NextBusIndicatorProps {
   schedules: Schedule[];
 }
-
-const directionLabels: Record<ScheduleDirection, string> = {
-  'campus-to-metro': 'Campus → Metro',
-  'metro-to-campus': 'Metro → Campus'
-};
-
-const locationInfo: Record<ScheduleDirection, { from: string; to: string }> = {
-  'campus-to-metro': {
-    from: 'Özyeğin University',
-    to: 'Çekmeköy Metro'
-  },
-  'metro-to-campus': {
-    from: 'Çekmeköy Metro',
-    to: 'Özyeğin University'
-  }
-};
 
 interface NextDepartureInfo {
   time: string | null;
@@ -36,8 +21,8 @@ interface NextDepartureInfo {
 
 export function NextBusIndicator({ schedules }: NextBusIndicatorProps) {
   const [departures, setDepartures] = useState<Record<ScheduleDirection, NextDepartureInfo>>({
-    'campus-to-metro': { time: null, timeUntil: '', isUrgent: false },
-    'metro-to-campus': { time: null, timeUntil: '', isUrgent: false}
+    [ScheduleDirection.CAMPUS_TO_METRO]: { time: null, timeUntil: '', isUrgent: false },
+    [ScheduleDirection.METRO_TO_CAMPUS]: { time: null, timeUntil: '', isUrgent: false}
   });
 
   useEffect(() => {
@@ -50,7 +35,7 @@ export function NextBusIndicator({ schedules }: NextBusIndicatorProps) {
 
       const newDepartures = { ...departures };
 
-      (['campus-to-metro', 'metro-to-campus'] as const).forEach((direction) => {
+      DIRECTIONS.forEach((direction) => {
         const directionSchedules = schedules
           .filter((s) => s.isWeekend === isWeekend && s.direction === direction);
 
@@ -95,7 +80,7 @@ export function NextBusIndicator({ schedules }: NextBusIndicatorProps) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {(['campus-to-metro', 'metro-to-campus'] as const).map((direction) => {
+      {DIRECTIONS.map((direction) => {
         const departure = departures[direction];
         
         return (
@@ -119,7 +104,7 @@ export function NextBusIndicator({ schedules }: NextBusIndicatorProps) {
                         departure.isUrgent ? "text-primary" : "text-muted-foreground"
                       )} />
                     </motion.div>
-                    <h3 className="text-lg font-semibold">{directionLabels[direction]}</h3>
+                    <h3 className="text-lg font-semibold">{DIRECTION_LABELS[direction]}</h3>
                   </div>
                   <AnimatePresence mode="wait">
                     {departure.time && (
@@ -145,9 +130,9 @@ export function NextBusIndicator({ schedules }: NextBusIndicatorProps) {
                 <div className="flex items-center gap-2 text-sm">
                   <MapPin className="h-4 w-4 text-muted-foreground" />
                   <div className="flex items-center gap-1">
-                    <span className="text-muted-foreground">{locationInfo[direction].from}</span>
+                    <span className="text-muted-foreground">{LOCATION_INFO[direction].from}</span>
                     <ArrowRight className="h-4 w-4 text-muted-foreground mx-1" />
-                    <span className="text-muted-foreground">{locationInfo[direction].to}</span>
+                    <span className="text-muted-foreground">{LOCATION_INFO[direction].to}</span>
                   </div>
                 </div>
 

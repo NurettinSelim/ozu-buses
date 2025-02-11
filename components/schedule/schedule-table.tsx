@@ -13,17 +13,14 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Clock, RefreshCw } from "lucide-react";
 import { useEffect, useState } from "react";
-import { ScheduleDirection } from "@/types/schedule";
 import { timeToMinutes, getCurrentTimeInMinutes } from "@/lib/utils/time";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { DIRECTION_LABELS, DIRECTIONS } from "@/config/constants";
+import { ScheduleDirection } from "@/types/schedule";
 
-const directionLabels: Record<ScheduleDirection, string> = {
-  'campus-to-metro': 'Campus → Metro',
-  'metro-to-campus': 'Metro → Campus'
-};
 
 function isWeekend(): boolean {
   const day = new Date().getDay();
@@ -47,22 +44,11 @@ export function ScheduleTable() {
 
   if (isLoading) {
     return (
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Time</TableHead>
-            <TableHead>Service</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {[...Array(5)].map((_, i) => (
-            <TableRow key={i}>
-              <TableCell><Skeleton className="h-4 w-16" /></TableCell>
-              <TableCell><Skeleton className="h-4 w-20" /></TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <div className="space-y-4">
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-10 w-full" />
+      </div>
     );
   }
 
@@ -76,21 +62,31 @@ export function ScheduleTable() {
     );
   }
 
+  if (!schedules?.length) {
+    return (
+      <Alert>
+        <AlertDescription>
+          No schedules available for today.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
   const filteredSchedules = schedules?.filter(s => s.isWeekend === showWeekend) || [];
   
   const groupedSchedules = {
-    'campus-to-metro': {
-      shuttle: filteredSchedules.filter(s => s.direction === 'campus-to-metro' && s.type === 'shuttle'),
-      iett: filteredSchedules.filter(s => s.direction === 'campus-to-metro' && s.type === 'iett')
+    [ScheduleDirection.CAMPUS_TO_METRO]: {
+      shuttle: filteredSchedules.filter(s => s.direction === ScheduleDirection.CAMPUS_TO_METRO && s.type === 'shuttle'),
+      iett: filteredSchedules.filter(s => s.direction === ScheduleDirection.CAMPUS_TO_METRO && s.type === 'iett')
     },
-    'metro-to-campus': {
-      shuttle: filteredSchedules.filter(s => s.direction === 'metro-to-campus' && s.type === 'shuttle'),
-      iett: filteredSchedules.filter(s => s.direction === 'metro-to-campus' && s.type === 'iett')
+    [ScheduleDirection.METRO_TO_CAMPUS]: {
+      shuttle: filteredSchedules.filter(s => s.direction === ScheduleDirection.METRO_TO_CAMPUS && s.type === 'shuttle'),
+      iett: filteredSchedules.filter(s => s.direction === ScheduleDirection.METRO_TO_CAMPUS && s.type === 'iett')
     }
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 lg:space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <h2 className="text-2xl font-semibold text-primary">Bus Schedule</h2>
@@ -116,71 +112,60 @@ export function ScheduleTable() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {(['campus-to-metro', 'metro-to-campus'] as const).map((direction) => {
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
+        {DIRECTIONS.map((direction) => {
           const directionSchedules = groupedSchedules[direction];
           const allSchedules = [...directionSchedules.shuttle, ...directionSchedules.iett].sort((a, b) => 
             timeToMinutes(a.time) - timeToMinutes(b.time)
           );
-          const nextDepartureIndex = currentDayType === showWeekend ? 
-            allSchedules.findIndex(schedule => timeToMinutes(schedule.time) > currentTime) : -1;
 
           return (
-            <div key={direction} className="bg-white/90 rounded-lg p-4 shadow-sm">
+            <div key={direction} className="bg-white/90 rounded-lg p-4 lg:p-6 shadow-sm">
               <div className="mb-4">
-                <h3 className="text-lg font-medium text-primary">{directionLabels[direction]}</h3>
+                <h3 className="text-lg font-medium text-primary">{DIRECTION_LABELS[direction]}</h3>
               </div>
               <Table>
                 <TableHeader>
-                  <TableRow className="hover:bg-transparent border-border">
-                    <TableHead>
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-muted-foreground">Time</span>
-                      </div>
-                    </TableHead>
-                    <TableHead className="text-muted-foreground">Service</TableHead>
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead className="w-[120px] sm:w-[140px]">Time</TableHead>
+                    <TableHead>Direction</TableHead>
+                    <TableHead className="text-right w-[100px] sm:w-[120px]">Status</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {allSchedules.map((schedule, index) => {
-                    const isNextDeparture = index === nextDepartureIndex;
-                    const minutesUntil = isNextDeparture ? 
-                      timeToMinutes(schedule.time) - currentTime : null;
+                    const timeInMinutes = timeToMinutes(schedule.time);
+                    const isPassed = timeInMinutes < currentTime;
+                    const isNext = !isPassed && (index === 0 || (allSchedules[index - 1] && timeToMinutes(allSchedules[index - 1].time) < currentTime));
 
                     return (
-                      <TableRow 
-                        key={`${schedule.time}-${index}`}
+                      <TableRow
+                        key={`${schedule.time}-${schedule.direction}`}
                         className={cn(
-                          "hover:bg-secondary/50 border-border",
-                          isNextDeparture && 'bg-secondary'
+                          "hover:bg-muted/50 transition-colors",
+                          isPassed && "opacity-50"
                         )}
                       >
-                        <TableCell className={cn(
-                          "font-medium text-foreground/80",
-                          isNextDeparture && 'text-foreground'
-                        )}>
+                        <TableCell className="font-medium py-3">
                           <div className="flex items-center gap-2">
+                            <Clock className="h-3.5 w-3.5 text-muted-foreground" />
                             {schedule.time}
-                            {isNextDeparture && (
-                              <Badge className="bg-primary/10 text-primary border-primary/20">
-                                Next ({minutesUntil}m)
-                              </Badge>
-                            )}
                           </div>
                         </TableCell>
-                        <TableCell>
-                          <Badge 
-                            variant="outline" 
-                            className={cn(
-                              "bg-white",
-                              schedule.type === 'shuttle' 
-                                ? 'text-primary border-primary/30' 
-                                : 'text-muted-foreground border-muted'
+                        <TableCell className="py-3">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm">{DIRECTION_LABELS[direction]}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right py-3">
+                          <div className="flex flex-col items-end gap-1.5">
+                            {isNext && (
+                              <Badge variant="secondary">Next</Badge>
                             )}
-                          >
-                            {schedule.type === 'shuttle' ? 'Shuttle' : 'IETT'}
-                          </Badge>
+                            <Badge variant={isPassed ? "outline" : "default"}>
+                              {isPassed ? "Departed" : "Scheduled"}
+                            </Badge>
+                          </div>
                         </TableCell>
                       </TableRow>
                     );
