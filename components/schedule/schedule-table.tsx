@@ -87,29 +87,30 @@ export function ScheduleTable() {
 
   return (
     <div className="space-y-6 lg:space-y-8">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <h2 className="text-2xl font-semibold text-primary">Bus Schedule</h2>
-          <div className="flex items-center gap-2 bg-white/80 rounded-lg px-3 py-1.5 shadow-sm">
-            <span className="text-sm text-muted-foreground">Weekday</span>
-            <Switch 
-              checked={showWeekend}
-              onCheckedChange={setShowWeekend}
-            />
-            <span className="text-sm text-muted-foreground">Weekend</span>
+      <div className="flex flex-col gap-4 sm:gap-6">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 bg-white/80 rounded-lg px-4 py-2 shadow-sm">
+              <span className="text-sm font-medium text-muted-foreground">Weekday</span>
+              <Switch 
+                checked={showWeekend}
+                onCheckedChange={setShowWeekend}
+              />
+              <span className="text-sm font-medium text-muted-foreground">Weekend</span>
+            </div>
+            {currentDayType === showWeekend && (
+              <Badge variant="outline" className="bg-secondary text-secondary-foreground">Today</Badge>
+            )}
           </div>
-          {currentDayType === showWeekend && (
-            <Badge variant="outline" className="bg-secondary text-secondary-foreground">Today</Badge>
-          )}
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-9 w-9 bg-white/80 hover:bg-white transition-colors shadow-sm"
+            onClick={() => refetch()}
+          >
+            <RefreshCw className="h-4 w-4 text-primary" />
+          </Button>
         </div>
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-8 w-8 bg-white/80 hover:bg-white transition-colors shadow-sm"
-          onClick={() => refetch()}
-        >
-          <RefreshCw className="h-4 w-4 text-primary" />
-        </Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
@@ -135,12 +136,13 @@ export function ScheduleTable() {
                 <TableBody>
                   {allSchedules.map((schedule, index) => {
                     const timeInMinutes = timeToMinutes(schedule.time);
-                    const isPassed = timeInMinutes < currentTime;
-                    const isNext = !isPassed && (index === 0 || (allSchedules[index - 1] && timeToMinutes(allSchedules[index - 1].time) < currentTime));
+                    const isCurrentDayType = currentDayType === showWeekend;
+                    const isPassed = isCurrentDayType && timeInMinutes < currentTime;
+                    const isNext = isCurrentDayType && !isPassed && (index === 0 || (allSchedules[index - 1] && timeToMinutes(allSchedules[index - 1].time) < currentTime));
 
                     return (
                       <TableRow
-                        key={`${schedule.time}-${schedule.direction}`}
+                        key={`${schedule.type}-${schedule.time}-${schedule.direction}-${schedule.isWeekend}`}
                         className={cn(
                           "hover:bg-muted/50 transition-colors",
                           isPassed && "opacity-50"
@@ -159,16 +161,18 @@ export function ScheduleTable() {
                         </TableCell>
                         <TableCell className="text-right py-3">
                           <div className="flex flex-col items-end gap-1.5">
-                            {isNext && (
-                              <Badge variant="default">Next</Badge>
+                            {isCurrentDayType && (
+                              <>
+                                {isNext && (
+                                  <Badge variant="default">Next</Badge>
+                                )}
+                                {isPassed && (
+                                  <Badge variant="outline">
+                                    Departed
+                                  </Badge>
+                                )}
+                              </>
                             )}
-                            {
-                              isPassed && (
-                                <Badge variant="outline">
-                                  Departed
-                                </Badge>
-                              )
-                            }
                           </div>
                         </TableCell>
                       </TableRow>
