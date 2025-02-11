@@ -28,7 +28,7 @@ function isWeekend(): boolean {
 }
 
 export function ScheduleTable() {
-  const { data: schedules, isLoading, error, refetch } = useSchedules();
+  const { data: schedules, isLoading, error, refetch, isFetching } = useSchedules();
   const [currentDayType, setCurrentDayType] = useState<boolean>(isWeekend());
   const [showWeekend, setShowWeekend] = useState<boolean>(isWeekend());
   const [currentTime, setCurrentTime] = useState(getCurrentTimeInMinutes());
@@ -107,8 +107,12 @@ export function ScheduleTable() {
             size="icon"
             className="h-9 w-9 bg-white/80 hover:bg-white transition-colors shadow-sm"
             onClick={() => refetch()}
+            disabled={isFetching}
           >
-            <RefreshCw className="h-4 w-4 text-primary" />
+            <RefreshCw className={cn(
+              "h-4 w-4 text-primary",
+              isFetching && "animate-spin"
+            )} />
           </Button>
         </div>
       </div>
