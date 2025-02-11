@@ -11,13 +11,13 @@ export async function getShuttleSchedules(): Promise<Schedule[]> {
   const metroToCampus = response[1];
 
   return [
-    ...campusToMetro.data.flatMap((schedule) => mapShuttleSchedule(schedule, 'campus-to-metro')),
-    ...metroToCampus.data.flatMap((schedule) => mapShuttleSchedule(schedule, 'metro-to-campus')),
+    ...campusToMetro.data.flatMap((schedule) => mapShuttleSchedule(schedule, ScheduleDirection.CAMPUS_TO_METRO)),
+    ...metroToCampus.data.flatMap((schedule) => mapShuttleSchedule(schedule, ScheduleDirection.METRO_TO_CAMPUS)),
   ];
 }
 
 function mapShuttleSchedule(schedule: ShuttleSchedule, direction: ScheduleDirection): Schedule[] {
-  return schedule.data.flatMap((scheduleTime) => 
+  return schedule.data.flatMap((scheduleTime) =>
     scheduleTime.data.map((time) => ({
       type: 'shuttle',
       time,

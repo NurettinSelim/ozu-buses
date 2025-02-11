@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { GET } from "./route";
-import type { Schedule } from '@/types/schedule';
+import { ScheduleDirection, type Schedule } from '@/types/schedule';
+import { DIRECTIONS } from "@/config/constants";
 
 describe("ÇM44 Schedules API", () => {
   const isValidSchedule = (schedule: Schedule) => {
@@ -8,7 +9,7 @@ describe("ÇM44 Schedules API", () => {
       typeof schedule.type === 'string' &&
       typeof schedule.time === 'string' &&
       typeof schedule.isWeekend === 'boolean' &&
-      (!schedule.direction || ['campus-to-metro', 'metro-to-campus'].includes(schedule.direction))
+      (!schedule.direction || DIRECTIONS.includes(schedule.direction))
     );
   };
 
@@ -29,10 +30,10 @@ describe("ÇM44 Schedules API", () => {
     expect(data.every(isValidSchedule)).toBe(true);
     // Check if we have schedules for both directions
     const hasMetroToCampus = data.some((schedule: Schedule) => 
-      schedule.direction === "metro-to-campus"
+      schedule.direction === ScheduleDirection.METRO_TO_CAMPUS
     );
     const hasCampusToMetro = data.some((schedule: Schedule) => 
-      schedule.direction === "campus-to-metro"
+      schedule.direction === ScheduleDirection.CAMPUS_TO_METRO
     );
     expect(hasMetroToCampus || hasCampusToMetro).toBe(true);
   });

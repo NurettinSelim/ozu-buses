@@ -2,7 +2,7 @@ import type {
   IettScheduleResponse,
 } from '@/types/iett';
 import { iettAPI, IettApiError } from './iett-client';
-import type { Schedule } from '@/types/schedule';
+import { ScheduleDirection, type Schedule } from '@/types/schedule';
 
 // Custom error classes
 export class IettServiceError extends Error {
@@ -31,7 +31,7 @@ function mapIettSchedule(schedule: IettScheduleResponse): Schedule {
     type: 'iett',
     time: schedule.DT,
     isWeekend: schedule.SGUNTIPI !== 'I',
-    direction: schedule.SYON === 'G' ? 'campus-to-metro' : 'metro-to-campus',
+    direction: schedule.SYON === 'G' ? ScheduleDirection.CAMPUS_TO_METRO : ScheduleDirection.METRO_TO_CAMPUS,
   };
 }
 

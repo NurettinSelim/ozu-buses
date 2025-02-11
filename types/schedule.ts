@@ -1,5 +1,9 @@
 export type ScheduleType = "shuttle" | "iett";
-export type ScheduleDirection = "campus-to-metro" | "metro-to-campus";
+
+export enum ScheduleDirection {
+  CAMPUS_TO_METRO = "campus-to-metro",
+  METRO_TO_CAMPUS = "metro-to-campus",
+}
 
 export interface Schedule {
   type: ScheduleType;
