@@ -153,18 +153,22 @@ export function ScheduleTable() {
                           </div>
                         </TableCell>
                         <TableCell className="py-3">
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 whitespace-nowrap ">
                             <span className="text-sm">{DIRECTION_LABELS[direction]}</span>
                           </div>
                         </TableCell>
                         <TableCell className="text-right py-3">
                           <div className="flex flex-col items-end gap-1.5">
                             {isNext && (
-                              <Badge variant="secondary">Next</Badge>
+                              <Badge variant="default">Next</Badge>
                             )}
-                            <Badge variant={isPassed ? "outline" : "default"}>
-                              {isPassed ? "Departed" : "Scheduled"}
-                            </Badge>
+                            {
+                              isPassed && (
+                                <Badge variant="outline">
+                                  Departed
+                                </Badge>
+                              )
+                            }
                           </div>
                         </TableCell>
                       </TableRow>
