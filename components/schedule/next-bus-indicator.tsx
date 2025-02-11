@@ -20,10 +20,10 @@ const directionLabels: Record<ScheduleDirection, string> = {
 const locationInfo: Record<ScheduleDirection, { from: string; to: string }> = {
   'campus-to-metro': {
     from: 'Özyeğin University',
-    to: 'Çekmeköy-Sancaktepe Metro'
+    to: 'Çekmeköy Metro'
   },
   'metro-to-campus': {
-    from: 'Çekmeköy-Sancaktepe Metro',
+    from: 'Çekmeköy Metro',
     to: 'Özyeğin University'
   }
 };
