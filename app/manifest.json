@@ -1,7 +1,7 @@
 {
   "name": "OZU Bus Tracker",
   "short_name": "OZU Buses",
-  "description": "Track ÇM44 bus schedules and arrivals for Özyeğin University",
+  "description": "Track ÇM44-1 and shuttle schedules and arrivals for Özyeğin University",
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",

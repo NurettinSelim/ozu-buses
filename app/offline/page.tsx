@@ -10,7 +10,7 @@ export default function OfflinePage() {
     <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center">
       <h1 className="text-4xl font-bold mb-4">You&apos;re Offline</h1>
       <p className="text-lg mb-8">
-        Sorry, you&apos;re currently offline. The ÇM44 bus schedule requires an internet connection to show real-time updates.
+        Sorry, you&apos;re currently offline. The ÇM44-1 and shuttle schedules require an internet connection to show real-time updates.
       </p>
       <p className="mb-8">
         Some features may still work with cached data.

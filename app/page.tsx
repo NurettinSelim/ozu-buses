@@ -18,7 +18,7 @@ export default function HomePage() {
         <div className="space-y-4 sm:space-y-6 lg:space-y-8">
           {/* Title and Description */}
           <div className="space-y-1.5">
-            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">ÇM44 Bus Schedule</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">ÇM44-1 and Shuttle Schedule</h1>
             <p className="text-sm sm:text-base text-muted-foreground">
               Real-time schedules for Özyeğin University&apos;s students
             </p>

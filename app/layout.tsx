@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "ÖzÜ Buses",
-  description: "Track ÇM44 bus schedules for Özyeğin University",
+  description: "Track ÇM44-1 and shuttle schedules for Özyeğin University",
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,

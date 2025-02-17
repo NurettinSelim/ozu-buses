@@ -1,7 +1,5 @@
 import { ScheduleDirection } from "@/types/schedule";
 
-export const ROUTE_CODE = "ÇM44";
-
 export const DIRECTION_LABELS = {
   [ScheduleDirection.CAMPUS_TO_METRO]: "Campus → Metro",
   [ScheduleDirection.METRO_TO_CAMPUS]: "Metro → Campus",
