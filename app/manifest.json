@@ -1,6 +1,7 @@
 {
-  "name": "MyWebSite",
-  "short_name": "MySite",
+  "name": "OZU Bus Tracker",
+  "short_name": "OZU Buses",
+  "description": "Track ÇM44 bus schedules and arrivals for Özyeğin University",
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",
@@ -15,7 +16,12 @@
       "purpose": "maskable"
     }
   ],
-  "theme_color": "#ffffff",
+  "theme_color": "#000000",
   "background_color": "#ffffff",
-  "display": "standalone"
+  "display": "standalone",
+  "start_url": "/",
+  "scope": "/",
+  "orientation": "portrait",
+  "categories": ["travel", "transportation"],
+  "prefer_related_applications": false
 }

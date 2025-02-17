@@ -2,12 +2,22 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
+import { RegisterSW } from "@/components/pwa/register-sw";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "ÖzÜ Buses",
   description: "Track ÇM44 bus schedules for Özyeğin University",
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'ÖzÜ Buses',
+  },
+  formatDetection: {
+    telephone: false,
+  },
 };
 
 export default function RootLayout({
@@ -19,11 +29,15 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <meta name="apple-mobile-web-app-title" content="ÖzÜ Buses" />
+        <meta name="application-name" content="ÖzÜ Buses" />
+        <meta name="theme-color" content="#000000" />
+        <link rel="apple-touch-icon" href="/web-app-manifest-192x192.png" />
       </head>
       <body className={inter.className}>
         <Providers>
           {children}
         </Providers>
+        <RegisterSW />
       </body>
     </html>
   );
