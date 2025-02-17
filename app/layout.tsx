@@ -30,7 +30,7 @@ export default function RootLayout({
       <head>
         <meta name="apple-mobile-web-app-title" content="ÖzÜ Buses" />
         <meta name="application-name" content="ÖzÜ Buses" />
-        <meta name="theme-color" content="#000000" />
+        <meta name="theme-color" content="#ffffff" />
         <link rel="apple-touch-icon" href="/web-app-manifest-192x192.png" />
       </head>
       <body className={inter.className}>
