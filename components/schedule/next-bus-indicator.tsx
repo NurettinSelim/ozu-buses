@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Clock, ArrowRight, MapPin } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { DIRECTION_LABELS, DIRECTIONS, LOCATION_INFO } from "@/config/constants";
+import { normalizeTimeForSort, minutesToTime, formatTimeUntil, getCurrentTimeInMinutes } from "@/lib/utils/time";
 
 interface NextBusIndicatorProps {
   schedules: Schedule[];
@@ -27,11 +28,9 @@ export function NextBusIndicator({ schedules }: NextBusIndicatorProps) {
 
   useEffect(() => {
     const updateNextDepartures = () => {
-      const now = new Date();
-      const currentHour = now.getHours();
-      const currentMinute = now.getMinutes();
-      const currentTime = currentHour * 60 + currentMinute;
-      const isWeekend = now.getDay() === 0 || now.getDay() === 6;
+      const currentTime = getCurrentTimeInMinutes();
+      const normalizedCurrentTime = normalizeTimeForSort(minutesToTime(currentTime));
+      const isWeekend = new Date().getDay() === 0 || new Date().getDay() === 6;
 
       const newDepartures = { ...departures };
 
@@ -42,9 +41,8 @@ export function NextBusIndicator({ schedules }: NextBusIndicatorProps) {
         let nextSchedule: Schedule | undefined;
         const nextTime = directionSchedules
           .find((s) => {
-            const [hours, minutes] = s.time.split(":").map(Number);
-            const time = hours * 60 + minutes;
-            if (time > currentTime) {
+            const normalizedScheduleTime = normalizeTimeForSort(s.time);
+            if (normalizedScheduleTime > normalizedCurrentTime) {
               nextSchedule = s;
               return true;
             }
@@ -52,13 +50,12 @@ export function NextBusIndicator({ schedules }: NextBusIndicatorProps) {
           });
 
         if (nextSchedule && nextTime) {
-          const [hours, minutes] = nextSchedule.time.split(":").map(Number);
-          const nextTimeInMinutes = hours * 60 + minutes;
-          const minutesUntil = nextTimeInMinutes - currentTime;
+          const normalizedScheduleTime = normalizeTimeForSort(nextSchedule.time);
+          const minutesUntil = normalizedScheduleTime - normalizedCurrentTime;
           
           newDepartures[direction] = {
-            time: `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`,
-            timeUntil: `${minutesUntil} minutes`,
+            time: nextSchedule.time,
+            timeUntil: formatTimeUntil(minutesUntil),
             isUrgent: minutesUntil <= 10,
           };
         } else {
