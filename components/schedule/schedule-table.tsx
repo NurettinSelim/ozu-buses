@@ -11,7 +11,7 @@ import {
 import { useSchedules } from "@/lib/hooks/use-schedules";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Clock, RefreshCw } from "lucide-react";
+import { RefreshCw, Bus, Train } from "lucide-react";
 import { useEffect, useState } from "react";
 import { timeToMinutes, getCurrentTimeInMinutes } from "@/lib/utils/time";
 import { cn } from "@/lib/utils";
@@ -41,6 +41,19 @@ export function ScheduleTable() {
 
     return () => clearInterval(timer);
   }, []);
+
+  const Legend = () => (
+    <div className="flex items-center gap-4 mb-4">
+      <div className="flex items-center gap-2">
+        <Bus className="h-4 w-4 text-blue-500" />
+        <span className="text-sm text-muted-foreground">Shuttle</span>
+      </div>
+      <div className="flex items-center gap-2">
+        <Train className="h-4 w-4 text-purple-500" />
+        <span className="text-sm text-muted-foreground">IETT (ÇM44)</span>
+      </div>
+    </div>
+  );
 
   if (isLoading) {
     return (
@@ -117,6 +130,8 @@ export function ScheduleTable() {
         </div>
       </div>
 
+      <Legend />
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
         {DIRECTIONS.map((direction) => {
           const directionSchedules = groupedSchedules[direction];
@@ -154,12 +169,16 @@ export function ScheduleTable() {
                       >
                         <TableCell className="font-medium py-3">
                           <div className="flex items-center gap-2">
-                            <Clock className="h-3.5 w-3.5 text-muted-foreground" />
                             {schedule.time}
                           </div>
                         </TableCell>
                         <TableCell className="py-3">
-                          <div className="flex items-center gap-2 whitespace-nowrap ">
+                          <div className="flex items-center gap-2 whitespace-nowrap">
+                            {schedule.type === 'shuttle' ? (
+                              <Bus className="h-4 w-4 text-blue-500" />
+                            ) : (
+                              <Train className="h-4 w-4 text-purple-500" />
+                            )}
                             <span className="text-sm">{DIRECTION_LABELS[direction]}</span>
                           </div>
                         </TableCell>
