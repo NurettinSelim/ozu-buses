@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Schedule } from "@/types/schedule";
+import { useEffect } from "react";
 
 interface UseSchedulesOptions {
   direction?: string;
@@ -28,9 +29,33 @@ async function fetchSchedules(options: UseSchedulesOptions = {}): Promise<Schedu
   return response.json();
 }
 
+function getNextDayTimestamp(): number {
+  const now = new Date();
+  const tomorrow = new Date(now);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(0, 0, 0, 0);
+  return tomorrow.getTime();
+}
+
 export function useSchedules(options: UseSchedulesOptions = {}) {
-  return useQuery<Schedule[]>({
+  const query = useQuery<Schedule[]>({
     queryKey: ["schedules", options],
     queryFn: () => fetchSchedules(options),
+    staleTime: 1000 * 60 * 60, // Consider data fresh for 1 hour
+    gcTime: 1000 * 60 * 60 * 24, // Keep unused data in cache for 24 hours
   });
+
+  useEffect(() => {
+    // Set up timer to refetch when day changes
+    const now = new Date();
+    const msUntilNextDay = getNextDayTimestamp() - now.getTime();
+    
+    const timer = setTimeout(() => {
+      query.refetch();
+    }, msUntilNextDay);
+
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  return query;
 } 
