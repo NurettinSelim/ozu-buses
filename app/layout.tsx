@@ -17,6 +17,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <meta name="apple-mobile-web-app-title" content="ÖzÜ Buses" />
+      </head>
       <body className={inter.className}>
         <Providers>
           {children}
