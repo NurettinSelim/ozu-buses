@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
-import { RegisterSW } from "@/components/pwa/register-sw";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -37,7 +36,6 @@ export default function RootLayout({
         <Providers>
           {children}
         </Providers>
-        <RegisterSW />
       </body>
     </html>
   );
