@@ -43,19 +43,25 @@ export function getTimeUntil(targetTime: string): number {
 
 export function formatTimeUntil(minutes: number): string {
   if (minutes < 60) {
-    return `${minutes} dakika`;
+    return `${minutes} minutes`;
   }
   
   const hours = Math.floor(minutes / 60);
   const remainingMinutes = minutes % 60;
   
   if (remainingMinutes === 0) {
-    return `${hours} saat`;
+    return `${hours} hours`;
   }
   
-  return `${hours} saat ${remainingMinutes} dakika`;
+  return `${hours} hours ${remainingMinutes} minutes`;
 } 
 
+export function normalizeTimeForSort(time: string): number {
+  const minutes = timeToMinutes(time);
+  // If time is before 06:00, add 24 hours worth of minutes
+  return minutes < 360 ? minutes + 1440 : minutes;
+}
+
 export function sortByTime(schedules: Schedule[]): Schedule[] {
-  return schedules.sort((a, b) => timeToMinutes(a.time) - timeToMinutes(b.time));
+  return schedules.sort((a, b) => normalizeTimeForSort(a.time) - normalizeTimeForSort(b.time));
 }
